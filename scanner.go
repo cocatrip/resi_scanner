@@ -139,27 +139,30 @@ func main() {
         fmt.Scanf("%s", &input)
 
         userList := []string{"1","2","3","4","5"}
-        keyUser, isChangeUser = Find(userList, input)
-        if input == "q"  {
-            break
-        }else if input == "c" {
-            CallClear()
-        }else if isChangeUser == true {
+        _, isChangeUser = Find(userList, input)
+        if isChangeUser == true {
+            keyUser, _ = Find(userList, input)
             user = users[keyUser].Name
             continue
-        }else {
-            resi := string(input)
-            kurir := CekResi(resi)
+        }else{
+            if input == "q"  {
+                break
+            }else if input == "c" {
+                CallClear()
+            }else  {
+                resi := string(input)
+                kurir := CekResi(resi)
 
-            if kurir == "none" {
-                fmt.Println("Courier not found!")
-            }else if kurir == "jnt" {
-                _, found := Find(list, input)
-                if !found {
-                    users[keyUser].JnT = append(users[keyUser].JnT, input)
-                    logger.Println(input)
-                }else {
-                    fmt.Printf("!ERR! Resi already exist!\n")
+                if kurir == "none" {
+                    fmt.Println("Courier not found!")
+                }else if kurir == "jnt" {
+                    _, found := Find(users[keyUser].JnT, input)
+                    if !found {
+                        users[keyUser].JnT = append(users[keyUser].JnT, input)
+                        logger.Println(input)
+                    }else {
+                        fmt.Printf("!ERROR! Resi already exist!\n")
+                    }
                 }
             }
         }
@@ -175,8 +178,9 @@ func main() {
         path := fmt.Sprintf("%s%s.log", folder, file)
         list := GetList(path)
         total = total + len(list)
+        fmt.Printf("\n%s:\t%d", users[i].Name, len(list))
         if i == len(users)-1 {
-            fmt.Printf("\nTotal: %d\n", total)
+            fmt.Printf("\nTotal:\t%d\n", total)
         }
     }
 }
