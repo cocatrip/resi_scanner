@@ -178,9 +178,9 @@ func main() {
         path := fmt.Sprintf("%s%s.log", folder, file)
         list := GetList(path)
         total = total + len(list)
-        fmt.Printf("\n%s:\t%d", users[i].Name, len(list))
+        fmt.Printf("\n%s\t: %d", users[i].Name, len(list))
         if i == len(users)-1 {
-            fmt.Printf("\nTotal:\t%d\n", total)
+            fmt.Printf("\nTotal: %d\n", total)
         }
     }
 }
