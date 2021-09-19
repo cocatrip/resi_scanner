@@ -74,6 +74,10 @@ func IsJnt(resi string) bool {
 }
 
 func CekResi(resi string) string {
+    if len(resi) < 5 {
+        return "none"
+    }
+
     if IsJnt(resi) == true {
         return "jnt"
     }
