@@ -49,7 +49,6 @@ func CallClear() {
     }
 }
 
-
 func Find(slice []string, val string) (int, bool) {
     for i, item := range slice {
         if item == val {
@@ -57,31 +56,6 @@ func Find(slice []string, val string) (int, bool) {
         }
     }
     return -1, false
-}
-
-func IsJnt(resi string) bool {
-    if string(resi[0:4]) == "TJNT" {
-        return true
-    }
-
-    if len(resi) == 12{
-        if string(resi[0:1]) == "J" {
-            return true
-        }
-    }
-
-    return false
-}
-
-func CekResi(resi string) string {
-    if len(resi) < 5 {
-        return "none"
-    }
-
-    if IsJnt(resi) == true {
-        return "jnt"
-    }
-    return "none"
 }
 
 func GetList(path string) []string {
@@ -165,7 +139,15 @@ func main() {
                         users[keyUser].JnT = append(users[keyUser].JnT, input)
                         logger.Println(input)
                     }else {
-                        fmt.Printf("!ERROR! Resi already exist!\n")
+                        fmt.Printf("[E] Resi already exist!\n")
+                    }
+                }else if kurir == "sicepat" {
+                    _, found := Find(users[keyUser].SiCepat, input)
+                    if !found {
+                        users[keyUser].SiCepat = append(users[keyUser].SiCepat, input)
+                        logger.Println(input)
+                    }else {
+                        fmt.Printf("[E] Resi already exist!\n")
                     }
                 }
             }
@@ -176,7 +158,7 @@ func main() {
     _ = ioutil.WriteFile("./db/data.json", file, 0644)
 
     total := 0
-    for i, _ := range(users) {
+    for i:=0; i<len(users); i++ {
         folder := fmt.Sprintf("./%s/", currentTime.Format("02-01-2006"))
         file := fmt.Sprintf("%s", users[i].Name)
         path := fmt.Sprintf("%s%s.log", folder, file)
