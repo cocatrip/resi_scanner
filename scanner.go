@@ -10,6 +10,8 @@ import (
     "os/exec"
     "io/ioutil"
     "encoding/json"
+
+    "github.com/fatih/color"
 )
 
 type User struct {
@@ -58,7 +60,7 @@ func Find(slice []string, val string) (int, bool) {
     return -1, false
 }
 
-func GetList(path string) []string {
+func GetList(path string, kurir string) []string {
     data, err := os.Open(path)
     if err != nil {
         log.Fatal(err)
@@ -67,9 +69,33 @@ func GetList(path string) []string {
     fS.Split(bufio.ScanLines)
     var list []string
     for fS.Scan() {
-        list = append(list, fS.Text())
+        if kurir == "all" {
+            list = append(list, fS.Text())
+        }else {
+            if fS.Text()[len(fS.Text())-2:] == kurir {
+                list = append(list, fS.Text())
+            }
+        }
     }
     return list
+}
+
+func resiExistHandler() bool {
+    var answer string
+
+    color.Red("[!!] Resi already exist!")
+    fmt.Fprintf(color.Output, "Proceed with scanning?[%s/%s]\n", color.GreenString("y"), color.RedString("n"))
+    for {
+        fmt.Printf(">> ")
+        fmt.Scan(&answer)
+        if answer == "n" {
+            return false
+        } else if answer == "y" {
+            return true
+        } else {
+            color.Red("Answer not valid!")
+        }
+    }
 }
 
 func main() {
@@ -91,7 +117,7 @@ func main() {
 
     for {
         // File
-        folder := fmt.Sprintf("./%s/", currentTime.Format("02-01-2006"))
+        folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
         file := fmt.Sprintf("%s.log", users[keyUser].Name)
         pathLog := fmt.Sprintf("%s%s", folder, file)
         if _, err := os.Stat(folder); os.IsNotExist(err) {
@@ -104,7 +130,7 @@ func main() {
         }
         defer fl.Close()
 
-        list := GetList(pathLog)
+        list := GetList(pathLog, "all")
 
         // Logging
         logger := log.New(fl, "", log.LstdFlags)
@@ -137,17 +163,23 @@ func main() {
                     _, found := Find(users[keyUser].JnT, input)
                     if !found {
                         users[keyUser].JnT = append(users[keyUser].JnT, input)
-                        logger.Println(input)
+                        logger.Println(input, "01")
                     }else {
-                        fmt.Printf("[E] Resi already exist!\n")
+                        answer := resiExistHandler()
+                        if answer == false {
+                            break
+                        }
                     }
                 }else if kurir == "sicepat" {
                     _, found := Find(users[keyUser].SiCepat, input)
                     if !found {
                         users[keyUser].SiCepat = append(users[keyUser].SiCepat, input)
-                        logger.Println(input)
+                        logger.Println(input, "02")
                     }else {
-                        fmt.Printf("[E] Resi already exist!\n")
+                        answer := resiExistHandler()
+                        if answer == false {
+                            break
+                        }
                     }
                 }
             }
@@ -157,14 +189,33 @@ func main() {
     file, _ = json.MarshalIndent(users, "", " ")
     _ = ioutil.WriteFile("./db/data.json", file, 0644)
 
+    fmt.Println("\n====================")
     total := 0
+    fmt.Println("JnT")
+    fmt.Println("====================")
     for i:=0; i<len(users); i++ {
-        folder := fmt.Sprintf("./%s/", currentTime.Format("02-01-2006"))
+        folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
         file := fmt.Sprintf("%s", users[i].Name)
         path := fmt.Sprintf("%s%s.log", folder, file)
-        list := GetList(path)
+        list := GetList(path, "01")
         total = total + len(list)
-        fmt.Printf("\n%s\t: %d", users[i].Name, len(list))
+        fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
+        if i == len(users)-1 {
+            fmt.Printf("\nTotal: %d\n", total)
+        }
+    }
+
+    total =0
+    fmt.Println("\n====================")
+    fmt.Println("SiCepat")
+    fmt.Println("====================")
+    for i:=0; i<len(users); i++ {
+        folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
+        file := fmt.Sprintf("%s", users[i].Name)
+        path := fmt.Sprintf("%s%s.log", folder, file)
+        list := GetList(path, "02")
+        total = total + len(list)
+        fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
         if i == len(users)-1 {
             fmt.Printf("\nTotal: %d\n", total)
         }
