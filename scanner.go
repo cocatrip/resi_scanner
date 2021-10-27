@@ -98,7 +98,31 @@ func resiExistHandler() bool {
 	}
 }
 
+func CreateFile(currentTime time.Time, users []User) {
+	for i := 0; i < len(users); i++ {
+		folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
+		file := fmt.Sprintf("%s.log", users[i].Name)
+		pathLog := fmt.Sprintf("%s%s", folder, file)
+		if _, err := os.Stat(folder); os.IsNotExist(err) {
+			os.MkdirAll(folder, 0777)
+		}
+
+		fl, err := os.OpenFile(pathLog, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer fl.Close()
+	}
+}
+
+func Pause() {
+	fmt.Print("Press 'Enter' to continue...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
+}
+
 func main() {
+	var users []User
+
 	jsonFile, err := os.Open("./db/data.json")
 	if err != nil {
 		log.Fatal(err)
@@ -106,7 +130,6 @@ func main() {
 	defer jsonFile.Close()
 
 	file, err := ioutil.ReadAll(jsonFile)
-	var users []User
 	_ = json.Unmarshal([]byte(file), &users)
 
 	keyUser := 0
@@ -115,6 +138,8 @@ func main() {
 	user := users[0].Name
 
 	currentTime := time.Now()
+
+	CreateFile(currentTime, users)
 
 	for {
 		// File
@@ -221,4 +246,5 @@ func main() {
 			fmt.Printf("\nTotal: %d\n", total)
 		}
 	}
+	Pause()
 }
