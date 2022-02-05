@@ -120,6 +120,42 @@ func Pause() {
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
 }
 
+func PrintTotal(users []User) {
+	currentTime := time.Now()
+
+	fmt.Println("\n====================")
+	total := 0
+	fmt.Println("JnT")
+	fmt.Println("====================")
+	for i := 0; i < len(users); i++ {
+		folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
+		file := fmt.Sprintf("%s", users[i].Name)
+		path := fmt.Sprintf("%s%s.log", folder, file)
+		list := GetList(path, "01")
+		total = total + len(list)
+		fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
+		if i == len(users)-1 {
+			fmt.Printf("\nTotal: %d\n", total)
+		}
+	}
+
+	total = 0
+	fmt.Println("\n====================")
+	fmt.Println("SiCepat")
+	fmt.Println("====================")
+	for i := 0; i < len(users); i++ {
+		folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
+		file := fmt.Sprintf("%s", users[i].Name)
+		path := fmt.Sprintf("%s%s.log", folder, file)
+		list := GetList(path, "02")
+		total = total + len(list)
+		fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
+		if i == len(users)-1 {
+			fmt.Printf("\nTotal: %d\n\n", total)
+		}
+	}
+}
+
 func main() {
 	var users []User
 
@@ -129,8 +165,8 @@ func main() {
 	}
 	defer jsonFile.Close()
 
-	file, err := ioutil.ReadAll(jsonFile)
-	_ = json.Unmarshal([]byte(file), &users)
+	fl, err := ioutil.ReadAll(jsonFile)
+	_ = json.Unmarshal([]byte(fl), &users)
 
 	keyUser := 0
 	isChangeUser := false
@@ -164,7 +200,7 @@ func main() {
 		var input string
 
 		fmt.Printf("User [%d. %s] (%d)\n", keyUser+1, user, len(list))
-		fmt.Printf("Input:\n>> ")
+		fmt.Printf(">> ")
 
 		fmt.Scanf("%s", &input)
 
@@ -175,11 +211,14 @@ func main() {
 			user = users[keyUser].Name
 			continue
 		} else {
-			if input == "q" {
+			if input == "q" || input == "quit" {
 				break
-			} else if input == "c" {
+			} else if input == "c" || input == "clear" {
 				CallClear()
-			} else {
+			} else if input == "p" || input == "print" {
+                PrintTotal(users)
+			} else if input == "w" || input == "write" {
+            } else {
 				resi := string(input)
 				kurir := CekResi(resi)
 
@@ -212,39 +251,10 @@ func main() {
 		}
 	}
 
-	file, _ = json.MarshalIndent(users, "", " ")
-	_ = ioutil.WriteFile("./db/data.json", file, 0644)
+	fl, _ = json.MarshalIndent(users, "", " ")
+	_ = ioutil.WriteFile("./db/data.json", fl, 0644)
 
-	fmt.Println("\n====================")
-	total := 0
-	fmt.Println("JnT")
-	fmt.Println("====================")
-	for i := 0; i < len(users); i++ {
-		folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
-		file := fmt.Sprintf("%s", users[i].Name)
-		path := fmt.Sprintf("%s%s.log", folder, file)
-		list := GetList(path, "01")
-		total = total + len(list)
-		fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
-		if i == len(users)-1 {
-			fmt.Printf("\nTotal: %d\n", total)
-		}
-	}
+    PrintTotal(users)
 
-	total = 0
-	fmt.Println("\n====================")
-	fmt.Println("SiCepat")
-	fmt.Println("====================")
-	for i := 0; i < len(users); i++ {
-		folder := fmt.Sprintf("./log/%s/", currentTime.Format("02-01-2006"))
-		file := fmt.Sprintf("%s", users[i].Name)
-		path := fmt.Sprintf("%s%s.log", folder, file)
-		list := GetList(path, "02")
-		total = total + len(list)
-		fmt.Printf("%s\t: %d\n", users[i].Name, len(list))
-		if i == len(users)-1 {
-			fmt.Printf("\nTotal: %d\n", total)
-		}
-	}
 	Pause()
 }
